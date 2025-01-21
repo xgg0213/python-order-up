@@ -2,4 +2,62 @@
 
 {% block content %}
 <h1>"Order Up!"</h1>
+
+<!-- Table Assignment Form -->
+<div class="table-assignment">
+    <h2>Assign Table</h2>
+    <form method="POST" action="{{ url_for('.assign_table') }}">
+        {{ assign_table_form.csrf_token }}
+        <div>
+            {{ assign_table_form.tables.label }}
+            {{ assign_table_form.tables }}
+        </div>
+        <div>
+            {{ assign_table_form.servers.label }}
+            {{ assign_table_form.servers }}
+        </div>
+        {{ assign_table_form.assign }}
+    </form>
+</div>
+
+<!-- Your Orders -->
+<div class="your-orders">
+    <h2>Your Orders</h2>
+    {% for order in your_orders %}
+    <div class="order">
+        <h3>Table {{ order.table.number }}</h3>
+        <ul>
+            {% for detail in order.details %}
+            <li>{{ detail.menu_item.name }} - ${{ "%.2f"|format(detail.menu_item.price) }}</li>
+            {% endfor %}
+        </ul>
+        <form method="POST" action="{{ url_for('.close_table', id=order.id) }}">
+            {{ assign_table_form.csrf_token }}
+            <button type="submit">Close Table</button>
+        </form>
+        <button form="food-list" formaction="{{ url_for('.add_to_order', id=order.id) }}">
+            Add to order
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Menu Items -->
+<div class="menu-items">
+    <h2>Menu Items</h2>
+    <form id="food-list" method="POST">
+        {{ menu_item_form.csrf_token }}
+        {% for type, items in menu_items_by_type.items() %}
+        <h3>{{ type }}</h3>
+        {% for item in items %}
+        <div>
+            <input type="checkbox" name="menu_item_ids" value="{{ item.id }}" id="item-{{ item.id }}">
+            <label for="item-{{ item.id }}">
+                {{ item.name }} - ${{ "%.2f"|format(item.price) }}
+            </label>
+        </div>
+        {% endfor %}
+        {% endfor %}
+    </form>
+</div>
 {% endblock %}
